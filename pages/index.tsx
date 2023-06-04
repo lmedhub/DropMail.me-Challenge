@@ -37,39 +37,10 @@ export default function Home() {
   const [sessionSwalStatus, setSessionSwalStatus] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchData = async (sessionID: string) => {
-    try {
-      setIsLoading(true);
-      const response = await axios.post(
-        "http://localhost:8080/https://dropmail.me/api/graphql/web-test-20230602QuMvA",
-        {
-          query: `
-           query {
-             session(id: "${sessionID}") {
-               mails {
-                 fromAddr
-                 text
-                 headerSubject
-               }
-             }
-           }
-          `,
-        }
-      );
-      if (response.data?.data?.session) {
-        setMails(response.data.data.session.mails);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const generateEmail = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:8080/https://dropmail.me/api/graphql/web-test-20230602QuMvA",
+        "https://dropmail.me/api/graphql/web-test-20230602QuMvA",
         {
           query: `
           mutation {
@@ -98,6 +69,35 @@ export default function Home() {
       localStorage.setItem("expiration", expiration.toString());
     } catch (error) {
       console.error("Error:", error);
+    }
+  };
+
+  const fetchData = async (sessionID: string) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post(
+        "https://dropmail.me/api/graphql/web-test-20230602QuMvA",
+        {
+          query: `
+           query {
+             session(id: "${sessionID}") {
+               mails {
+                 fromAddr
+                 text
+                 headerSubject
+               }
+             }
+           }
+          `,
+        }
+      );
+      if (response.data?.data?.session) {
+        setMails(response.data.data.session.mails);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
