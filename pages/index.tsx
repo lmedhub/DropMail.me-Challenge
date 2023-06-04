@@ -10,11 +10,13 @@ import {
   ListItem,
   ListItemText,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import axios from "axios";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import LoadingOverlay from "@/components/loadingOverlay";
 import CustomSwal from "@/components/customSwal";
 import useSessionExpiration from "@/hooks/useSessionExpiration";
@@ -45,7 +47,6 @@ export default function Home() {
            query {
              session(id: "${sessionID}") {
                mails {
-                 rawSize
                  fromAddr
                  text
                  headerSubject
@@ -63,32 +64,6 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchData(sessionID);
-    const timer = setInterval(() => fetchData(sessionID), 15000);
-    return () => {
-      clearInterval(timer);
-    };
-  }, [sessionID]);
-
-  useEffect(() => {
-    if (mails.length > prevMailCount) {
-      if ("Notification" in window && Notification.permission === "granted") {
-        if (!document.hidden) {
-          return;
-        }
-        new Notification("Coodesh-Mail!", {
-          body: "Chegou um novo e-mail!",
-        });
-      }
-    }
-    setPrevMailCount(mails.length);
-  }, [mails, prevMailCount]);
-
-  const handleMailClick = (mail: Mail) => {
-    setSelectedMail(mail);
   };
 
   const generateEmail = async () => {
@@ -135,7 +110,35 @@ export default function Home() {
     localStorage.removeItem("expiration");
   };
 
+  useEffect(() => {
+    if (sessionID) {
+      fetchData(sessionID);
+      const timer = setInterval(() => fetchData(sessionID), 15000);
+      return () => {
+        clearInterval(timer);
+      };
+    }
+  }, [sessionID]);
+
+  useEffect(() => {
+    if (mails.length > prevMailCount) {
+      if ("Notification" in window && Notification.permission === "granted") {
+        if (!document.hidden) {
+          return;
+        }
+        new Notification("Coodesh-Mail!", {
+          body: "Chegou um novo e-mail!",
+        });
+      }
+    }
+    setPrevMailCount(mails.length);
+  }, [mails, prevMailCount]);
+
   useSessionExpiration({ setSessionID, clearSession });
+
+  const handleMailClick = (mail: Mail) => {
+    setSelectedMail(mail);
+  };
 
   function handleSwalOk() {
     clearSession();
@@ -174,7 +177,7 @@ export default function Home() {
       >
         <Box sx={{ mt: "40px" }}>
           {!sessionID && (
-            <Button onClick={generateEmail}>
+            <Button variant="contained" onClick={generateEmail}>
               Gerar novo e-mail temporário!
             </Button>
           )}
@@ -186,6 +189,16 @@ export default function Home() {
                 value={email}
                 InputProps={{
                   readOnly: true,
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Tooltip
+                        sx={{ cursor: "auto" }}
+                        title="Alguns domínios do Dropmail.me não estão funcionando. Se o e-mail não chegar após 15 segundos, encerre a sessão e utilize outro e-mail."
+                      >
+                        <ReportProblemOutlinedIcon />
+                      </Tooltip>
+                    </InputAdornment>
+                  ),
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton>
@@ -195,6 +208,7 @@ export default function Home() {
                   ),
                 }}
               />
+
               <Button onClick={handleOpenSwal}>Encerrar sessão</Button>
             </>
           )}
@@ -202,37 +216,51 @@ export default function Home() {
         {sessionID ? (
           <Box sx={{ my: 5, width: "100%" }}>
             <Card style={{ display: "flex", flexDirection: "column" }}>
-              <Grid container>
+              <Grid container sx={{ borderBottom: "1px solid lightgray" }}>
                 <Grid
                   item
                   md={3}
                   xs={12}
-                  sx={{ border: "1px solid lightgray" }}
+                  sx={{
+                    height: "38.5px",
+                  }}
                 >
                   <Typography variant="subtitle1" sx={{ textAlign: "center" }}>
                     Inbox
                   </Typography>
                 </Grid>
+
                 <Grid
                   item
                   md={9}
                   xs={12}
                   sx={{
-                    border: "1px solid lightgray",
                     backgroundColor: "#F8F8F8",
+                    borderLeft: { xs: "unset", md: "1px solid lightgray" },
                   }}
                 >
                   {selectedMail && (
-                    <Button
-                      sx={{ height: "100%" }}
-                      onClick={() => setSelectedMail(null)}
-                    >
-                      <ArrowBackIcon />
-                      Desselecionar e-mail
-                    </Button>
+                    <>
+                      <Button onClick={() => setSelectedMail(null)}>
+                        <ArrowBackIcon />
+                        Desselecionar e-mail
+                      </Button>
+
+                      <Typography
+                        noWrap
+                        sx={{
+                          textAlign: "center",
+                          fontWeight: "bold",
+                          borderTop: "1px solid lightgray",
+                        }}
+                      >
+                        {selectedMail?.headerSubject}
+                      </Typography>
+                    </>
                   )}
                 </Grid>
               </Grid>
+
               <Grid container>
                 <Grid
                   item
@@ -247,35 +275,41 @@ export default function Home() {
                   }}
                 >
                   <Box sx={{ overflowY: "scroll", height: "500px" }}>
-                    <List>
-                      {mails.map((mail, index) => (
-                        <ListItem
-                          sx={{
-                            borderTop: "1px solid lightgray",
-                            borderBottom: "1px solid lightgray",
-                          }}
-                          key={index}
-                          button
-                          onClick={() => handleMailClick(mail)}
-                        >
-                          <ListItemText
-                            primary={
-                              <Typography
-                                noWrap
-                                sx={{
-                                  maxWidth: 200,
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                }}
-                              >
-                                {mail.headerSubject}
-                              </Typography>
-                            }
-                            secondary={`Origem: ${mail.fromAddr}`}
-                          />
-                        </ListItem>
-                      ))}
-                    </List>
+                    {mails.length ? (
+                      <List>
+                        {mails.map((mail, index) => (
+                          <ListItem
+                            sx={{
+                              borderBottom: "1px solid lightgray",
+                            }}
+                            key={index}
+                            button
+                            onClick={() => handleMailClick(mail)}
+                          >
+                            <ListItemText
+                              primary={
+                                <Typography
+                                  noWrap
+                                  sx={{
+                                    maxWidth: 300,
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                  }}
+                                >
+                                  {mail.headerSubject}
+                                </Typography>
+                              }
+                              secondary={`Origem: ${mail.fromAddr}`}
+                            />
+                          </ListItem>
+                        ))}
+                      </List>
+                    ) : (
+                      <Typography sx={{ mt: 5, textAlign: "center" }}>
+                        Nada aqui por enquanto. A caixa de entrada é atualizada
+                        a cada 15 segundos.
+                      </Typography>
+                    )}
                   </Box>
                 </Grid>
                 <Grid

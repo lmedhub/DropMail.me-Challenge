@@ -68,7 +68,7 @@ const NavBar = () => {
               {notificationPermission !== "granted" && (
                 <Button
                   variant="contained"
-                  color="primary"
+                  color="secondary"
                   onClick={handleNotificationRequest}
                 >
                   Ativar notificações
