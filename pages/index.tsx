@@ -85,7 +85,7 @@ export default function Home() {
       }
     }
     setPrevMailCount(mails.length);
-  }, [mails]);
+  }, [mails, prevMailCount]);
 
   const handleMailClick = (mail: Mail) => {
     setSelectedMail(mail);
