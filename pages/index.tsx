@@ -19,7 +19,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import LoadingOverlay from "@/components/loadingOverlay";
 import CustomSwal from "@/components/customSwal";
-import useSessionExpiration from "@/hooks/useSessionExpiration";
+import useSessionExpiration from "@/useSessionExpiration";
 
 interface Mail {
   rawSize: string;
