@@ -5,7 +5,7 @@ interface ExpirationProps {
   setSessionID: (sessionID: string) => void;
 }
 
-function useSessionExpiration({
+export default function useSessionExpiration({
   setSessionID,
   clearSession,
 }: ExpirationProps): void {
@@ -24,5 +24,3 @@ function useSessionExpiration({
     }
   }, [setSessionID, clearSession]);
 }
-
-export default useSessionExpiration;
