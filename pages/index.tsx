@@ -1,3 +1,5 @@
+import axios from "axios";
+
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -12,19 +14,18 @@ import {
   TextField,
   Tooltip,
   Typography,
-  Snackbar,
 } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import axios from "axios";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
+
 import LoadingOverlay from "@/components/loadingOverlay";
 import CustomSwal from "@/components/customSwal";
 
-import { Mail } from "@/types/mailTypes.d";
-
 import useSessionExpiration from "@/useSessionExpiration";
 import useNotification from "@/hooks/useNotification";
+
+import { Mail } from "@/types/mailTypes.d";
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -167,12 +168,21 @@ export default function Home() {
         {sessionID ? (
           <Box sx={{ my: 5, width: "100%" }}>
             <Card style={{ display: "flex", flexDirection: "column" }}>
-              <Grid container sx={{ borderBottom: "1px solid lightgray" }}>
+              <Grid
+                container
+                sx={{
+                  borderBottom: "1px solid lightgray",
+                }}
+              >
                 <Grid
                   item
                   md={3}
                   xs={12}
-                  sx={{ display: "flex", alignItems: "center" }}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    borderRight: { xs: "unset", md: "1px solid lightgray" },
+                  }}
                 >
                   <Typography
                     variant="h6"
@@ -188,7 +198,6 @@ export default function Home() {
                   xs={12}
                   sx={{
                     backgroundColor: "#F8F8F8",
-                    borderLeft: { xs: "unset", md: "1px solid lightgray" },
                   }}
                 >
                   {selectedMail && (
@@ -224,6 +233,7 @@ export default function Home() {
                       xs: "absolute",
                       md: "relative",
                     },
+                    borderRight: { xs: "unset", md: "1px solid lightgray" },
                   }}
                 >
                   <Box sx={{ overflowY: "scroll", height: "500px" }}>
@@ -264,20 +274,19 @@ export default function Home() {
                     )}
                   </Box>
                 </Grid>
-                <Grid
-                  item
-                  md={9}
-                  xs={12}
-                  sx={{
-                    overflowY: "scroll",
-                    height: "500px",
-                    position: "relative",
-                    backgroundColor: "white",
-                    padding: "5px",
-                    borderLeft: { xs: "unset", md: "1px solid lightgray" },
-                  }}
-                >
-                  {selectedMail && (
+                {selectedMail && (
+                  <Grid
+                    item
+                    md={9}
+                    xs={12}
+                    sx={{
+                      overflowY: "scroll",
+                      height: "500px",
+                      position: "relative",
+                      backgroundColor: "white",
+                      padding: "5px",
+                    }}
+                  >
                     <Box
                       sx={{
                         overflowY: "scroll",
@@ -290,8 +299,8 @@ export default function Home() {
                         {selectedMail.text}
                       </Typography>
                     </Box>
-                  )}
-                </Grid>
+                  </Grid>
+                )}
               </Grid>
             </Card>
           </Box>
