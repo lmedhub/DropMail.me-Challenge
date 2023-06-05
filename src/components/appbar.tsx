@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { AppBar, Toolbar, Typography, Box, Button } from "@mui/material";
 import CustomSwal from "./customSwal";
 
-const NavBar = () => {
+function NavBar() {
   const [notificationPermission, setNotificationPermission] =
     useState("unsupported");
   const [swalStatus, setSwalStatus] = useState(false);
@@ -20,7 +20,7 @@ const NavBar = () => {
     return "unsupported";
   }
 
-  const handleNotificationRequest = () => {
+  function handleNotificationRequest() {
     if (typeof window !== "undefined" && "Notification" in window) {
       if (notificationPermission === "granted") {
         return;
@@ -32,7 +32,7 @@ const NavBar = () => {
         });
       }
     }
-  };
+  }
 
   function handleOpenSwal() {
     setSwalStatus(true);
@@ -82,6 +82,6 @@ const NavBar = () => {
       </AppBar>
     </>
   );
-};
+}
 
 export default NavBar;

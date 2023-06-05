@@ -12,6 +12,7 @@ import {
   TextField,
   Tooltip,
   Typography,
+  Snackbar,
 } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import axios from "axios";
@@ -20,26 +21,22 @@ import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined
 import LoadingOverlay from "@/components/loadingOverlay";
 import CustomSwal from "@/components/customSwal";
 
+import { Mail } from "@/types/mailTypes.d";
+
 import useSessionExpiration from "@/useSessionExpiration";
 import useNotification from "@/hooks/useNotification";
-
-interface Mail {
-  fromAddr: string;
-  text: string;
-  headerSubject: string;
-}
 
 export default function Home() {
   const [email, setEmail] = useState("");
   const [sessionID, setSessionID] = useState("");
   const [mails, setMails] = useState<Mail[]>([]);
-  const [prevMailCount, setPrevMailCount] = useState(0);
-  const [selectedMail, setSelectedMail] = useState<Mail | null>(null);
+  const [selectedMail, setSelectedMail] = useState<Mail | null>();
   const [sessionSwalStatus, setSessionSwalStatus] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleGenerateEmail = async () => {
+  async function handleGenerateEmail() {
     try {
+      setIsLoading(true);
       const response = await axios.post("/api/generateEmail");
       const { generatedEmail, generatedSessionID, expiration } = response.data;
       setEmail(generatedEmail);
@@ -49,12 +46,13 @@ export default function Home() {
       localStorage.setItem("expiration", expiration.toString());
     } catch (error) {
       console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }
 
-  const fetchEmails = async (sessionID: string) => {
+  async function fetchEmails(sessionID: string) {
     try {
-      setIsLoading(true);
       const response = await axios.post("/api/fetchEmails", { sessionID });
       setMails(response.data.mails);
       const storedEmail = localStorage.getItem("email");
@@ -63,10 +61,8 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Error:", error);
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }
 
   function clearSession() {
     setSessionID("");
@@ -176,11 +172,12 @@ export default function Home() {
                   item
                   md={3}
                   xs={12}
-                  sx={{
-                    height: "38.5px",
-                  }}
+                  sx={{ display: "flex", alignItems: "center" }}
                 >
-                  <Typography variant="subtitle1" sx={{ textAlign: "center" }}>
+                  <Typography
+                    variant="h6"
+                    sx={{ textAlign: "center", padding: "10px" }}
+                  >
                     Inbox
                   </Typography>
                 </Grid>
@@ -207,6 +204,7 @@ export default function Home() {
                           textAlign: "center",
                           fontWeight: "bold",
                           borderTop: "1px solid lightgray",
+                          padding: "5px",
                         }}
                       >
                         {selectedMail?.headerSubject}
