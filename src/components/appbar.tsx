@@ -51,7 +51,7 @@ function NavBar() {
         title="Atenção!"
         text="Você bloqueou nossas notificações em seu navegador. Ative-as e reinicie e página para usar esta funcionalidade."
       />
-      <AppBar position="static">
+      <AppBar position="static" color="transparent">
         <Toolbar>
           <Box
             sx={{

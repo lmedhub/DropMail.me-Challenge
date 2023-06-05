@@ -192,7 +192,6 @@ export default function Home() {
                   ),
                 }}
               />
-
               <Button onClick={handleOpenSwal}>Encerrar sessão</Button>
             </>
           )}
