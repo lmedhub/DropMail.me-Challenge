@@ -27,6 +27,38 @@ import useNotification from "@/hooks/useNotification";
 
 import { Mail } from "@/types/mailTypes.d";
 
+function EmailText(props: { text: string }) {
+  return (
+    <Grid
+      item
+      md={9}
+      xs={12}
+      sx={{
+        overflowY: "scroll",
+        height: "500px",
+        position: "relative",
+        backgroundColor: "white",
+        padding: "5px",
+      }}
+    >
+      <Box
+        sx={{
+          overflowY: "scroll",
+        }}
+      >
+        <Typography
+          variant="body1"
+          sx={{
+            wordWrap: "break-word",
+          }}
+        >
+          {props.text}
+        </Typography>
+      </Box>
+    </Grid>
+  );
+}
+
 export default function Home() {
   const [email, setEmail] = useState("");
   const [sessionID, setSessionID] = useState("");
@@ -165,7 +197,7 @@ export default function Home() {
             </>
           )}
         </Box>
-        {sessionID ? (
+        {sessionID && (
           <Box sx={{ my: 5, width: "100%" }}>
             <Card style={{ display: "flex", flexDirection: "column" }}>
               <Grid
@@ -274,38 +306,10 @@ export default function Home() {
                     )}
                   </Box>
                 </Grid>
-                {selectedMail && (
-                  <Grid
-                    item
-                    md={9}
-                    xs={12}
-                    sx={{
-                      overflowY: "scroll",
-                      height: "500px",
-                      position: "relative",
-                      backgroundColor: "white",
-                      padding: "5px",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        overflowY: "scroll",
-                      }}
-                    >
-                      <Typography
-                        variant="body1"
-                        sx={{ wordWrap: "break-word" }}
-                      >
-                        {selectedMail.text}
-                      </Typography>
-                    </Box>
-                  </Grid>
-                )}
+                {selectedMail && <EmailText text={selectedMail.text} />}
               </Grid>
             </Card>
           </Box>
-        ) : (
-          ""
         )}
       </Box>
     </>
