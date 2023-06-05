@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { Mail } from "@/types/mailTypes.d";
 
-export default function useNotification(mails) {
+export default function useNotification(mails: Mail[]) {
   const [prevMailCount, setPrevMailCount] = useState(0);
 
   useEffect(() => {
