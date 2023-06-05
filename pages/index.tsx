@@ -19,10 +19,11 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import LoadingOverlay from "@/components/loadingOverlay";
 import CustomSwal from "@/components/customSwal";
+
 import useSessionExpiration from "@/useSessionExpiration";
+import useNotification from "@/hooks/useNotification";
 
 interface Mail {
-  rawSize: string;
   fromAddr: string;
   text: string;
   headerSubject: string;
@@ -40,7 +41,6 @@ export default function Home() {
   const handleGenerateEmail = async () => {
     try {
       const response = await axios.post("/api/generateEmail");
-
       const { generatedEmail, generatedSessionID, expiration } = response.data;
       setEmail(generatedEmail);
       setSessionID(generatedSessionID);
@@ -52,12 +52,15 @@ export default function Home() {
     }
   };
 
-  const fetchData = async (sessionID: string) => {
+  const fetchEmails = async (sessionID: string) => {
     try {
       setIsLoading(true);
       const response = await axios.post("/api/fetchEmails", { sessionID });
-      console.log(response.data.mails);
       setMails(response.data.mails);
+      const storedEmail = localStorage.getItem("email");
+      if (storedEmail !== null) {
+        setEmail(storedEmail);
+      }
     } catch (error) {
       console.error("Error:", error);
     } finally {
@@ -65,44 +68,32 @@ export default function Home() {
     }
   };
 
-  const clearSession = () => {
+  function clearSession() {
     setSessionID("");
     setEmail("");
     setSelectedMail(null);
     localStorage.removeItem("sessionID");
     localStorage.removeItem("email");
     localStorage.removeItem("expiration");
-  };
+  }
 
   useEffect(() => {
     if (sessionID) {
-      fetchData(sessionID);
-      const timer = setInterval(() => fetchData(sessionID), 15000);
+      fetchEmails(sessionID);
+      const timer = setInterval(() => fetchEmails(sessionID), 15000);
       return () => {
         clearInterval(timer);
       };
     }
   }, [sessionID]);
 
-  useEffect(() => {
-    if (mails.length > prevMailCount) {
-      if ("Notification" in window && Notification.permission === "granted") {
-        if (!document.hidden) {
-          return;
-        }
-        new Notification("Coodesh-Mail!", {
-          body: "Chegou um novo e-mail!",
-        });
-      }
-    }
-    setPrevMailCount(mails.length);
-  }, [mails, prevMailCount]);
+  useNotification(mails);
 
   useSessionExpiration({ setSessionID, clearSession });
 
-  const handleMailClick = (mail: Mail) => {
+  function handleMailClick(mail: Mail) {
     setSelectedMail(mail);
-  };
+  }
 
   function handleSwalOk() {
     clearSession();
@@ -231,7 +222,6 @@ export default function Home() {
                   md={3}
                   xs={12}
                   sx={{
-                    borderRight: { xs: "unset", md: "1px solid lightgray" },
                     position: selectedMail && {
                       xs: "absolute",
                       md: "relative",
@@ -286,6 +276,7 @@ export default function Home() {
                     position: "relative",
                     backgroundColor: "white",
                     padding: "5px",
+                    borderLeft: { xs: "unset", md: "1px solid lightgray" },
                   }}
                 >
                   {selectedMail && (
