@@ -37,33 +37,13 @@ export default function Home() {
   const [sessionSwalStatus, setSessionSwalStatus] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const generateEmail = async () => {
+  const handleGenerateEmail = async () => {
     try {
-      const response = await axios.post(
-        "https://dropmail.me/api/graphql/web-test-20230602QuMvA",
-        {
-          query: `
-          mutation {
-            introduceSession {
-              id,
-              expiresAt,
-              addresses {
-                address
-              }
-            }
-          }
-        `,
-        }
-      );
-      const { data } = response.data;
-      const { addresses, expiresAt } = data.introduceSession;
-      const generatedEmail = addresses[0].address;
-      const generatedSessionID = data.introduceSession.id;
-      const expiration = new Date(expiresAt).getTime();
+      const response = await axios.post("/api/generateEmail");
 
+      const { generatedEmail, generatedSessionID, expiration } = response.data;
       setEmail(generatedEmail);
       setSessionID(generatedSessionID);
-
       localStorage.setItem("sessionID", generatedSessionID);
       localStorage.setItem("email", generatedEmail);
       localStorage.setItem("expiration", expiration.toString());
@@ -75,25 +55,9 @@ export default function Home() {
   const fetchData = async (sessionID: string) => {
     try {
       setIsLoading(true);
-      const response = await axios.post(
-        "https://dropmail.me/api/graphql/web-test-20230602QuMvA",
-        {
-          query: `
-           query {
-             session(id: "${sessionID}") {
-               mails {
-                 fromAddr
-                 text
-                 headerSubject
-               }
-             }
-           }
-          `,
-        }
-      );
-      if (response.data?.data?.session) {
-        setMails(response.data.data.session.mails);
-      }
+      const response = await axios.post("/api/fetchEmails", { sessionID });
+      console.log(response.data.mails);
+      setMails(response.data.mails);
     } catch (error) {
       console.error("Error:", error);
     } finally {
@@ -177,7 +141,7 @@ export default function Home() {
       >
         <Box sx={{ mt: "40px" }}>
           {!sessionID && (
-            <Button variant="contained" onClick={generateEmail}>
+            <Button variant="contained" onClick={handleGenerateEmail}>
               Gerar novo e-mail temporário!
             </Button>
           )}
