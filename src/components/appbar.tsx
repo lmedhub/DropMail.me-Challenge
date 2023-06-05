@@ -6,9 +6,11 @@ const NavBar = () => {
   const [notificationPermission, setNotificationPermission] =
     useState("unsupported");
   const [swalStatus, setSwalStatus] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     setNotificationPermission(getInitialPermission());
+    setIsReady(true);
   }, []);
 
   function getInitialPermission() {
@@ -64,8 +66,8 @@ const NavBar = () => {
                 Coodesh Mail
               </Typography>
             </Box>
-            <Box>
-              {notificationPermission !== "granted" && (
+            {isReady && notificationPermission !== "granted" && (
+              <Box>
                 <Button
                   variant="contained"
                   color="secondary"
@@ -73,8 +75,8 @@ const NavBar = () => {
                 >
                   Ativar notificações
                 </Button>
-              )}
-            </Box>
+              </Box>
+            )}
           </Box>
         </Toolbar>
       </AppBar>
