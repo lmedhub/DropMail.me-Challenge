@@ -27,38 +27,6 @@ import useNotification from "@/hooks/useNotification";
 
 import { Mail } from "@/types/mailTypes.d";
 
-function EmailText(props: { text: string }) {
-  return (
-    <Grid
-      item
-      md={9}
-      xs={12}
-      sx={{
-        overflowY: "scroll",
-        height: "500px",
-        position: "relative",
-        backgroundColor: "white",
-        padding: "5px",
-      }}
-    >
-      <Box
-        sx={{
-          overflowY: "scroll",
-        }}
-      >
-        <Typography
-          variant="body1"
-          sx={{
-            wordWrap: "break-word",
-          }}
-        >
-          {props.text}
-        </Typography>
-      </Box>
-    </Grid>
-  );
-}
-
 function GenerateEmailInput(props: {
   email: string;
   sessionID: string;
@@ -257,7 +225,35 @@ function EmailTextDisplay(props: {
               )}
             </Box>
           </Grid>
-          {props.selectedMail && <EmailText text={props.selectedMail.text} />}
+          {props.selectedMail && (
+            <Grid
+              item
+              md={9}
+              xs={12}
+              sx={{
+                overflowY: "scroll",
+                height: "500px",
+                position: "relative",
+                backgroundColor: "white",
+                padding: "5px",
+              }}
+            >
+              <Box
+                sx={{
+                  overflowY: "scroll",
+                }}
+              >
+                <Typography
+                  variant="body1"
+                  sx={{
+                    wordWrap: "break-word",
+                  }}
+                >
+                  {props.selectedMail.text}
+                </Typography>
+              </Box>
+            </Grid>
+          )}
         </Grid>
       </Card>
     </Box>
