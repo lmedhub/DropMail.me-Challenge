@@ -59,6 +59,211 @@ function EmailText(props: { text: string }) {
   );
 }
 
+function GenerateEmailInput(props: {
+  email: string;
+  sessionID: string;
+  handleGenerateEmail: () => void;
+  copyToClipboard: () => void;
+  handleOpenSwal: () => void;
+}) {
+  return (
+    <Box
+      sx={{
+        mt: "40px",
+      }}
+    >
+      {!props.sessionID && (
+        <Button variant="contained" onClick={props.handleGenerateEmail}>
+          Gerar novo e-mail temporário!
+        </Button>
+      )}
+      {props.sessionID && (
+        <>
+          <TextField
+            variant="outlined"
+            fullWidth
+            value={props.email}
+            InputProps={{
+              readOnly: true,
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Tooltip
+                    sx={{
+                      cursor: "auto",
+                    }}
+                    title="Alguns domínios do Dropmail.me não estão funcionando. Se o e-mail não chegar após 15 segundos, encerre a sessão e utilize outro e-mail."
+                  >
+                    <ReportProblemOutlinedIcon />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton>
+                    <ContentCopyIcon onClick={props.copyToClipboard} />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button onClick={props.handleOpenSwal}>Encerrar sessão</Button>
+        </>
+      )}
+    </Box>
+  );
+}
+
+function EmailTextDisplay(props: {
+  mails: Mail[];
+  selectedMail: Mail | null | undefined;
+  setSelectedMail: (mail: Mail | null) => void;
+  handleMailClick: (mail: Mail) => void;
+}) {
+  return (
+    <Box
+      sx={{
+        my: 5,
+        width: "100%",
+      }}
+    >
+      <Card
+        style={{
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <Grid
+          container
+          sx={{
+            borderBottom: "1px solid lightgray",
+          }}
+        >
+          <Grid
+            item
+            md={3}
+            xs={12}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              borderRight: {
+                xs: "unset",
+                md: "1px solid lightgray",
+              },
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{
+                textAlign: "center",
+                padding: "10px",
+              }}
+            >
+              Inbox
+            </Typography>
+          </Grid>
+
+          <Grid
+            item
+            md={9}
+            xs={12}
+            sx={{
+              backgroundColor: "#F8F8F8",
+            }}
+          >
+            {props.selectedMail && (
+              <>
+                <Button onClick={() => props.setSelectedMail(null)}>
+                  <ArrowBackIcon />
+                  Desselecionar e-mail
+                </Button>
+
+                <Typography
+                  noWrap
+                  sx={{
+                    textAlign: "center",
+                    fontWeight: "bold",
+                    borderTop: "1px solid lightgray",
+                    padding: "5px",
+                  }}
+                >
+                  {props.selectedMail?.headerSubject}
+                </Typography>
+              </>
+            )}
+          </Grid>
+        </Grid>
+
+        <Grid container>
+          <Grid
+            item
+            md={3}
+            xs={12}
+            sx={{
+              position: props.selectedMail && {
+                xs: "absolute",
+                md: "relative",
+              },
+              borderRight: {
+                xs: "unset",
+                md: "1px solid lightgray",
+              },
+            }}
+          >
+            <Box
+              sx={{
+                overflowY: "scroll",
+                height: "500px",
+              }}
+            >
+              {props.mails.length ? (
+                <List>
+                  {props.mails.map((mail, index) => (
+                    <ListItem
+                      sx={{
+                        borderBottom: "1px solid lightgray",
+                      }}
+                      key={index}
+                      button
+                      onClick={() => props.handleMailClick(mail)}
+                    >
+                      <ListItemText
+                        primary={
+                          <Typography
+                            noWrap
+                            sx={{
+                              maxWidth: 300,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {mail.headerSubject}
+                          </Typography>
+                        }
+                        secondary={`Origem: ${mail.fromAddr}`}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              ) : (
+                <Typography
+                  sx={{
+                    mt: 5,
+                    textAlign: "center",
+                  }}
+                >
+                  Nada aqui por enquanto. A caixa de entrada é atualizada a cada
+                  15 segundos.
+                </Typography>
+              )}
+            </Box>
+          </Grid>
+          {props.selectedMail && <EmailText text={props.selectedMail.text} />}
+        </Grid>
+      </Card>
+    </Box>
+  );
+}
+
 export default function Home() {
   const [email, setEmail] = useState("");
   const [sessionID, setSessionID] = useState("");
@@ -159,156 +364,21 @@ export default function Home() {
           height: "500px",
         }}
       >
-        <Box sx={{ mt: "40px" }}>
-          {!sessionID && (
-            <Button variant="contained" onClick={handleGenerateEmail}>
-              Gerar novo e-mail temporário!
-            </Button>
-          )}
-          {sessionID && (
-            <>
-              <TextField
-                variant="outlined"
-                fullWidth
-                value={email}
-                InputProps={{
-                  readOnly: true,
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Tooltip
-                        sx={{ cursor: "auto" }}
-                        title="Alguns domínios do Dropmail.me não estão funcionando. Se o e-mail não chegar após 15 segundos, encerre a sessão e utilize outro e-mail."
-                      >
-                        <ReportProblemOutlinedIcon />
-                      </Tooltip>
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton>
-                        <ContentCopyIcon onClick={copyToClipboard} />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <Button onClick={handleOpenSwal}>Encerrar sessão</Button>
-            </>
-          )}
-        </Box>
+        <GenerateEmailInput
+          email={email}
+          sessionID={sessionID}
+          handleGenerateEmail={handleGenerateEmail}
+          copyToClipboard={copyToClipboard}
+          handleOpenSwal={handleOpenSwal}
+        />
+
         {sessionID && (
-          <Box sx={{ my: 5, width: "100%" }}>
-            <Card style={{ display: "flex", flexDirection: "column" }}>
-              <Grid
-                container
-                sx={{
-                  borderBottom: "1px solid lightgray",
-                }}
-              >
-                <Grid
-                  item
-                  md={3}
-                  xs={12}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    borderRight: { xs: "unset", md: "1px solid lightgray" },
-                  }}
-                >
-                  <Typography
-                    variant="h6"
-                    sx={{ textAlign: "center", padding: "10px" }}
-                  >
-                    Inbox
-                  </Typography>
-                </Grid>
-
-                <Grid
-                  item
-                  md={9}
-                  xs={12}
-                  sx={{
-                    backgroundColor: "#F8F8F8",
-                  }}
-                >
-                  {selectedMail && (
-                    <>
-                      <Button onClick={() => setSelectedMail(null)}>
-                        <ArrowBackIcon />
-                        Desselecionar e-mail
-                      </Button>
-
-                      <Typography
-                        noWrap
-                        sx={{
-                          textAlign: "center",
-                          fontWeight: "bold",
-                          borderTop: "1px solid lightgray",
-                          padding: "5px",
-                        }}
-                      >
-                        {selectedMail?.headerSubject}
-                      </Typography>
-                    </>
-                  )}
-                </Grid>
-              </Grid>
-
-              <Grid container>
-                <Grid
-                  item
-                  md={3}
-                  xs={12}
-                  sx={{
-                    position: selectedMail && {
-                      xs: "absolute",
-                      md: "relative",
-                    },
-                    borderRight: { xs: "unset", md: "1px solid lightgray" },
-                  }}
-                >
-                  <Box sx={{ overflowY: "scroll", height: "500px" }}>
-                    {mails.length ? (
-                      <List>
-                        {mails.map((mail, index) => (
-                          <ListItem
-                            sx={{
-                              borderBottom: "1px solid lightgray",
-                            }}
-                            key={index}
-                            button
-                            onClick={() => handleMailClick(mail)}
-                          >
-                            <ListItemText
-                              primary={
-                                <Typography
-                                  noWrap
-                                  sx={{
-                                    maxWidth: 300,
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                  }}
-                                >
-                                  {mail.headerSubject}
-                                </Typography>
-                              }
-                              secondary={`Origem: ${mail.fromAddr}`}
-                            />
-                          </ListItem>
-                        ))}
-                      </List>
-                    ) : (
-                      <Typography sx={{ mt: 5, textAlign: "center" }}>
-                        Nada aqui por enquanto. A caixa de entrada é atualizada
-                        a cada 15 segundos.
-                      </Typography>
-                    )}
-                  </Box>
-                </Grid>
-                {selectedMail && <EmailText text={selectedMail.text} />}
-              </Grid>
-            </Card>
-          </Box>
+          <EmailTextDisplay
+            mails={mails}
+            selectedMail={selectedMail}
+            setSelectedMail={setSelectedMail}
+            handleMailClick={handleMailClick}
+          />
         )}
       </Box>
     </>
