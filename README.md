@@ -16,6 +16,3 @@ Caso queira rodar localmente, basta:
 - Clonar o projeto.
 - Instalar as dependências (npm install).
 - Inicializar (npm run dev).
-
-This is a challenge by Coodesh
-https://www.loom.com/share/0e7a22653a8647ae8b105ebb93d7436c
